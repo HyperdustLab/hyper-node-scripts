@@ -4,7 +4,7 @@ services:
     image: hyperagi/hyperagi-inference:latest
     container_name: hyperagi-inference-chat-container
     ports:
-      - "5200:5200"
+      - "5200:5000"
     environment:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
@@ -20,12 +20,12 @@ services:
     image: hyperagi/hyperagi-inference:latest
     container_name: hyperagi-inference-instruction-container
     ports:
-      - "5100:5100"
+      - "5100:5000"
     environment:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
       - SCRIPT_NAME=inference_instruction.py
-      - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama2-7b-3752
+      - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama2-7b-3765
     deploy:
       resources:
         reservations:
