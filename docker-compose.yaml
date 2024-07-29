@@ -9,13 +9,14 @@ services:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
       - SCRIPT_NAME=inference_chat.py
-      - MODEL_NAME=HyperdustProtocol/ImHyperAGI-cog-llama2-7b-5908
+      - MODEL_NAME=HyperdustProtocol/ImHyperAGI-cog-llama2-7b-5908v2
       - PORT=5200
     deploy:
       resources:
         reservations:
           devices:
             - capabilities: [ gpu ]
+    restart: always 
 
   hyperagi-inference-instruction:
     image: hyperagi/hyperagi-inference:latest
@@ -26,10 +27,11 @@ services:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
       - SCRIPT_NAME=inference_instruction.py
-      - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama2-7b-3765
+      - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama2-7b-3792
       - PORT=5100
     deploy:
       resources:
         reservations:
           devices:
             - capabilities: [ gpu ]
+    restart: always 
