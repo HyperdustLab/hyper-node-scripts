@@ -8,7 +8,7 @@ services:
     environment:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
-      - SCRIPT_NAME=inference_chat.pya
+      - SCRIPT_NAME=inference_chat.py
       - MODEL_NAME=HyperdustProtocol/ImHyperAGI-cog-llama3.1-8b-4839
       - PORT=5200
     runtime: nvidia
