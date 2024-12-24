@@ -12,6 +12,8 @@ services:
       - MODEL_NAME=HyperdustProtocol/ImHyperAGI-cog-llama3.1-8b-4839
       - PORT=5200
     runtime: nvidia
+    volumes:
+      - huggingface-cache:/root/.cache/huggingface  # 持久化 Hugging Face 缓存目录
 
   hyperagi-inference-instruction:
     image: hyperagi/hyperagi-inference:last
@@ -25,3 +27,8 @@ services:
       - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama3-8b-3407
       - PORT=5100
     runtime: nvidia
+    volumes:
+      - huggingface-cache:/root/.cache/huggingface
+
+volumes:
+  huggingface-cache:
