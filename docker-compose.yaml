@@ -13,8 +13,7 @@ services:
       - PORT=5200
     runtime: nvidia
     volumes:
-      - huggingface-cache:/root/.cache/huggingface  # 持久化 Hugging Face 缓存目录
-
+      - huggingface-cache:/root/.cache/huggingface
   hyperagi-inference-instruction:
     image: hyperagi/hyperagi-inference:last
     container_name: hyperagi-inference-instruction-container
