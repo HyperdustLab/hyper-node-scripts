@@ -14,6 +14,8 @@ services:
     runtime: nvidia
     volumes:
       - huggingface-cache:/root/.cache/huggingface
+    restart: always
+
   hyperagi-inference-instruction:
     image: hyperagi/hyperagi-inference:last
     container_name: hyperagi-inference-instruction-container
@@ -28,6 +30,7 @@ services:
     runtime: nvidia
     volumes:
       - huggingface-cache:/root/.cache/huggingface
+    restart: always
 
 volumes:
   huggingface-cache:
