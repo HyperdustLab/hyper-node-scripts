@@ -4,7 +4,7 @@ services:
     image: hyperagi/hyperagi-inference:last
     container_name: hyperagi-inference-chat-container
     ports:
-      - "5200:5000"
+      - '5200:5000'
     environment:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
@@ -13,14 +13,14 @@ services:
       - PORT=5200
     runtime: nvidia
     volumes:
-      - huggingface-cache:/root/.cache/huggingface
+      - huggingface-cache-1:/root/.cache/huggingface
     restart: always
 
   hyperagi-inference-instruction:
     image: hyperagi/hyperagi-inference:last
     container_name: hyperagi-inference-instruction-container
     ports:
-      - "5100:5000"
+      - '5100:5000'
     environment:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
@@ -29,8 +29,9 @@ services:
       - PORT=5100
     runtime: nvidia
     volumes:
-      - huggingface-cache:/root/.cache/huggingface
+      - huggingface-cache-2:/root/.cache/huggingface
     restart: always
 
 volumes:
-  huggingface-cache:
+  huggingface-cache-1:
+  huggingface-cache-2:
