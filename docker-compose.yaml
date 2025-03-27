@@ -2,7 +2,6 @@ version: '3.9'
 services:
   hyperagi-inference-chat:
     image: hyperagi/hyperagi-inference:last
-    container_name: hyperagi-inference-chat-container
     ports:
       - '5200:5000'
     environment:
@@ -10,15 +9,15 @@ services:
       - WALLET_ADDRESS=${WALLET_ADDRESS}
       - SCRIPT_NAME=inference_chat.py
       - MODEL_NAME=HyperdustProtocol/ImHyperAGI-cog-llama3.1-8b-4839
+      - HF_TOKEN=
       - PORT=5200
     runtime: nvidia
     volumes:
-      - huggingface-cache-1:/root/.cache/huggingface
+      - ./models:/models
     restart: always
 
   hyperagi-inference-instruction:
     image: hyperagi/hyperagi-inference:last
-    container_name: hyperagi-inference-instruction-container
     ports:
       - '5100:5000'
     environment:
@@ -26,12 +25,8 @@ services:
       - WALLET_ADDRESS=${WALLET_ADDRESS}
       - SCRIPT_NAME=inference_instruction.py
       - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama3-8b-3407
+      - HF_TOKEN=
       - PORT=5100
     runtime: nvidia
     volumes:
-      - huggingface-cache-2:/root/.cache/huggingface
-    restart: always
-
-volumes:
-  huggingface-cache-1:
-  huggingface-cache-2:
+      - ./models:/models
