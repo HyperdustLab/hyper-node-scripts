@@ -1,21 +1,15 @@
 version: '3.9'
 services:
   hyperagi-inference-chat:
-    image: hyperagi/hyperagi-inference:last
+    image: hyperagi/hyperagi-inference-chat:last
     ports:
       - '5200:5000'
     environment:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
-      - SCRIPT_NAME=inference_chat.py
       - MODEL_NAME=HyperdustProtocol/ImHyperAGI-cog-llama3.1-8b-4839
-      - HF_TOKEN=
       - PORT=5200
     runtime: nvidia
-    volumes:
-      - ./models:/models
-    restart: always
-
   hyperagi-inference-instruction:
     image: hyperagi/hyperagi-inference:last
     ports:
@@ -23,10 +17,6 @@ services:
     environment:
       - PUBLIC_IP=${PUBLIC_IP}
       - WALLET_ADDRESS=${WALLET_ADDRESS}
-      - SCRIPT_NAME=inference_instruction.py
       - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama3-8b-3407
-      - HF_TOKEN=
       - PORT=5100
     runtime: nvidia
-    volumes:
-      - ./models:/models
