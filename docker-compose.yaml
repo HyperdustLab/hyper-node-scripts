@@ -1,22 +1,48 @@
-version: '3.9'
 services:
-  hyperagi-inference-chat:
-    image: hyperagi/hyperagi-inference-chat:last
-    ports:
-      - '5200:5000'
+  nacos:
+    image: hyperagi/nacos-client:last
     environment:
-      - PUBLIC_IP=${PUBLIC_IP}
-      - WALLET_ADDRESS=${WALLET_ADDRESS}
-      - MODEL_NAME=HyperdustProtocol/ImHyperAGI-cog-llama3.1-8b-4839
-      - PORT=5200
-    runtime: nvidia
-  hyperagi-inference-instruction:
-    image: hyperagi/hyperagi-inference:last
+      - PUBLIC_IP=43.159.42.232
+      - NODE=43.159.42.232:2
+      - PORT=1082
+      - WALLET_ADDRESS=0xaaC73e223DEc87218d849992b73B52be81910cAc
+      - SERVICE_NAME=MFDoom/deepseek-r1-tool-calling:32b
+    restart: always
+  ollama:
+    image: ollama/ollama
     ports:
-      - '5100:5000'
-    environment:
-      - PUBLIC_IP=${PUBLIC_IP}
-      - WALLET_ADDRESS=${WALLET_ADDRESS}
-      - MODEL_NAME=HyperdustProtocol/HyperAuto-cog-llama3-8b-3407
-      - PORT=5100
+      - '11434:11434'
+    restart: always
+    entrypoint: ['/bin/sh', '-c']
     runtime: nvidia
+    command:
+      - |
+        ollama serve &
+        sleep 5
+        ollama pull cogito:32b
+        ollama pull mxbai-embed-large
+        wait
+    volumes:
+      - ./models:/root/.ollama/models
+    environment:
+      - OLLAMA_DEBUG=true
+      - OLLAMA_LOG_LEVEL=trace
+      - OLLAMA_VERBOSE=true
+      - OLLAMA_KEEP_ALIVE=-1
+      - OLLAMA_CONTEXT_LENGTH=8192
+      - OLLAMA_NUM_PARALLEL=1
+  poop-mcp-client:
+    image: docker.hyperagi.network/poop-mcp-client:prod
+    ports:
+      - '8881:8881'
+    restart: always
+    environment:
+      - ES_URI=http://43.159.42.232:9200
+      - MODEL_NAME=cogito:32b
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - MCP_SERVER=http://43.159.42.232:8888
+      - HYPER_AGI_API=https://app.hyperagi.network/api
+  frpc:
+    image: snowdreamtech/frpc:0.62-bookworm
+    volumes:
+      - ./frpc/frpc.toml:/etc/frp/frpc.toml

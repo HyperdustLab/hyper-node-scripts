@@ -4,10 +4,10 @@
 
 1. **CPU**: Minimum 4 cores, recommended 8 cores
 2. **Memory**: > 16GB
-3. **GPU (Single Card)**: Nvidia RTX 3060 / Nvidia RTX 3080 / Nvidia RTX 3090
+3. **GPU (Single Card)**: Nvidia RTX 3090 or higher (minimum 32GB VRAM required)
 4. **Hard Drive**: > 512GB
 5. **Internet**: 5-10M
-6. **Public Address**: Mandatory
+6. **Network**: Fixed public IP (recommended) or dynamic IP with frpc tunnel
 
 ## II. Install Docker
 
@@ -128,32 +128,92 @@ cd hyperAGI-setup-script
 
 ### Step 2: Configure Environment Variables
 
-1. Open the .env file:
+1. Open the `docker-compose.yaml` file:
 
 ```bash
-nano .env
+nano docker-compose.yaml
 ```
 
-2. Configure the following variables:
+2. Configure the following variables in the `nacos` service:
 
-- `PUBLIC_IP`: Your server's public IP (get it using `curl ifconfig.me`)
-- `WALLET_ADDRESS`: Your Ethereum wallet address
+#### Required Configuration:
 
-3. Save changes:
+- **WALLET_ADDRESS**: Enter your own Ethereum wallet address for receiving earnings
+  ```yaml
+  - WALLET_ADDRESS=0xYourEthereumWalletAddress
+  ```
 
-- Press `Ctrl + O` to write changes
-- Press `Ctrl + Enter` to save
-- Press `Ctrl + X` to exit
+#### Network Configuration (Choose one option):
 
-### Step 3: Pull Docker Images
+**Option A: Nodes with fixed public IP**
 
-```bash
-docker-compose pull
+- **PUBLIC_IP**: Enter your node's fixed public IP address
+- **NODE**: Format as `your_public_ip:port`, e.g., `203.0.113.1:1082`
+- **PORT**: Use your specified port number, e.g., `1082`
+
+```yaml
+- PUBLIC_IP=203.0.113.1
+- NODE=203.0.113.1:1082
+- PORT=1082
 ```
 
-### Step 4: Start the Service
+**Option B: Nodes without fixed public IP**
+
+- **PUBLIC_IP**: Enter fixed value `43.159.42.232`
+- **NODE**: Node identifier assigned by MossAI platform
+- **PORT**: Port number assigned by MossAI platform
+
+```yaml
+- PUBLIC_IP=43.159.42.232
+- NODE=43.159.42.232:2 # Assigned by MossAI platform
+- PORT=1082 # Assigned by MossAI platform
+```
+
+### Step 3: Configure frpc (Only for nodes without fixed public IP)
+
+If you don't have a fixed public IP, you need to configure the frpc service for intranet penetration:
+
+1. Edit the `frpc/frpc.toml` configuration file:
 
 ```bash
+nano frpc/frpc.toml
+```
+
+2. Update configuration parameters:
+
+```toml
+[common]
+server_addr = 43.159.42.232
+server_port = 7000
+
+[MOSSAI3000]
+type = tcp
+local_ip = 192.168.1.12  # Modify to your local intranet IP address
+local_port = 8881        # Local port, no adjustment needed
+remote_port = 1082       # Remote port, assigned by MossAI platform
+```
+
+**Configuration Notes:**
+
+- `local_ip`: Modify to your local intranet IP address (check with `ip addr show` or `ifconfig`)
+- `local_port`: Local port, keep as `8881`
+- `remote_port`: Remote port, needs to be assigned by MossAI platform
+
+3. Ensure frpc service is enabled in docker-compose.yaml (enabled by default)
+
+### Step 4: Start Services
+
+**Nodes with fixed public IP:**
+
+```bash
+# Disable frpc service (comment out or delete frpc service configuration)
+docker-compose up -d nacos ollama poop-mcp-client
+```
+
+**Nodes without fixed public IP:**
+
+```bash
+# Start all services including frpc
 docker-compose up -d
 ```
 
@@ -163,16 +223,53 @@ docker-compose up -d
 docker-compose ps
 ```
 
-## Important Notes
-
-- Ensure ports 5200 TCP and 5000 TCP are accessible
-- For troubleshooting, check logs using:
+检查服务状态：
 
 ```bash
-docker-compose logs
+docker-compose logs nacos
+docker-compose logs ollama
+docker-compose logs poop-mcp-client
+# If you don't have a fixed public IP, also check frpc logs
+docker-compose logs frpc
 ```
 
-- For advanced configurations, refer to the docker-compose.yml file
+## VI. Configuration Summary
+
+| Configuration Item | With Fixed Public IP | Without Fixed Public IP  |
+| ------------------ | -------------------- | ------------------------ |
+| PUBLIC_IP          | Your public IP       | 43.159.42.232            |
+| NODE               | Your public IP:port  | Assigned by MossAI       |
+| PORT               | Your specified port  | Assigned by MossAI       |
+| WALLET_ADDRESS     | Your Ethereum wallet | Your Ethereum wallet     |
+| frpc service       | Not needed           | Need to start and config |
+
+## Important Notes
+
+- Ensure relevant ports ( 8881, etc.) are open in firewall
+- If using frpc, ensure local intranet IP is configured correctly
+- All port assignments and node identifiers should be obtained from MossAI platform
+- Wallet address must be in valid Ethereum address format
+
+## Troubleshooting
+
+- 查看服务日志：
+
+```bash
+docker-compose logs [service-name]
+```
+
+- 检查网络连接：
+
+```bash
+curl ifconfig.me  # Check public IP
+ip addr show      # Check internal IP
+```
+
+- 重启服务：
+
+```bash
+docker-compose restart [service-name]
+```
 
 ## Support
 
