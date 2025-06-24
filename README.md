@@ -122,8 +122,8 @@ git --version
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/xfangs/hyperAGI-setup-script.git
-cd hyperAGI-setup-script
+git clone https://github.com/HyperdustLab/moss-inference-engine
+cd moss-inference-engine
 ```
 
 ### Step 2: Configure Environment Variables
