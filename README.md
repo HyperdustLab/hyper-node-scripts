@@ -223,7 +223,7 @@ docker-compose up -d
 docker-compose ps
 ```
 
-检查服务状态：
+Check service status:
 
 ```bash
 docker-compose logs nacos
@@ -252,20 +252,20 @@ docker-compose logs frpc
 
 ## Troubleshooting
 
-- 查看服务日志：
+- View service logs:
 
 ```bash
 docker-compose logs [service-name]
 ```
 
-- 检查网络连接：
+- Check network connectivity:
 
 ```bash
 curl ifconfig.me  # Check public IP
 ip addr show      # Check internal IP
 ```
 
-- 重启服务：
+- Restart service:
 
 ```bash
 docker-compose restart [service-name]
