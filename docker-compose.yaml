@@ -2,13 +2,14 @@ services:
   nacos:
     image: hyperagi/nacos-client:last
     environment:
-      - PUBLIC_IP=43.159.42.232
-      - NODE=43.159.42.232:2
-      - PORT=1082
-      - WALLET_ADDRESS=0xaaC73e223DEc87218d849992b73B52be81910cAc
-      - SERVICE_NAME=MFDoom/deepseek-r1-tool-calling:32b
+      - PUBLIC_IP=${PUBLIC_IP}
+      - NODE=${NODE}
+      - PORT=8881
+      - WALLET_ADDRESS=${WALLET_ADDRESS}
+      - SERVICE_NAME=cogito:32b
     restart: always
   ollama:
+    network_mode: host
     image: ollama/ollama
     ports:
       - '11434:11434'
@@ -32,17 +33,105 @@ services:
       - OLLAMA_CONTEXT_LENGTH=8192
       - OLLAMA_NUM_PARALLEL=1
   poop-mcp-client:
-    image: docker.hyperagi.network/poop-mcp-client:prod
+    network_mode: host
+    image: hyperagi/poop-mcp-client
     ports:
       - '8881:8881'
     restart: always
     environment:
       - ES_URI=http://43.159.42.232:9200
       - MODEL_NAME=cogito:32b
-      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_BASE_URL=http://127.0.0.1:11434
       - MCP_SERVER=http://43.159.42.232:8888
       - HYPER_AGI_API=https://app.hyperagi.network/api
-  frpc:
-    image: snowdreamtech/frpc:0.62-bookworm
+  nacos-browser:
+    image: hyperagi/nacos-client:last
+    environment:
+      - PUBLIC_IP=${PUBLIC_IP}
+      - NODE=7789
+      - PORT=7788
+      - WALLET_ADDRESS=${WALLET_ADDRESS}
+      - SERVICE_NAME=browser-use
+    restart: always
+  browser-use-webui:
+    network_mode: host
+    image: hyperagi/browser-use-web-ui
     volumes:
-      - ./frpc/frpc.toml:/etc/frp/frpc.toml
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # - ./my_chrome_data:/app/data/chrome_data # Optional: persist browser data
+    restart: unless-stopped
+    shm_size: '2gb'
+    environment:
+      # LLM API Keys & Endpoints
+      - OPENAI_ENDPOINT=${OPENAI_ENDPOINT:-https://api.openai.com/v1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_ENDPOINT=${ANTHROPIC_ENDPOINT:-https://api.anthropic.com}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION:-2025-01-01-preview}
+      - DEEPSEEK_ENDPOINT=${DEEPSEEK_ENDPOINT:-https://api.deepseek.com}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OLLAMA_ENDPOINT=${OLLAMA_ENDPOINT:-http://localhost:11434}
+      - MISTRAL_ENDPOINT=${MISTRAL_ENDPOINT:-https://api.mistral.ai/v1}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
+      - ALIBABA_ENDPOINT=${ALIBABA_ENDPOINT:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      - ALIBABA_API_KEY=${ALIBABA_API_KEY:-}
+      - MOONSHOT_ENDPOINT=${MOONSHOT_ENDPOINT:-https://api.moonshot.cn/v1}
+      - MOONSHOT_API_KEY=${MOONSHOT_API_KEY:-}
+      - UNBOUND_ENDPOINT=${UNBOUND_ENDPOINT:-https://api.getunbound.ai}
+      - UNBOUND_API_KEY=${UNBOUND_API_KEY:-}
+      - SiliconFLOW_ENDPOINT=${SiliconFLOW_ENDPOINT:-https://api.siliconflow.cn/v1/}
+      - SiliconFLOW_API_KEY=${SiliconFLOW_API_KEY:-}
+      - IBM_ENDPOINT=${IBM_ENDPOINT:-https://us-south.ml.cloud.ibm.com}
+      - IBM_API_KEY=${IBM_API_KEY:-}
+      - IBM_PROJECT_ID=${IBM_PROJECT_ID:-}
+
+      # Application Settings
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-false}
+      - BROWSER_USE_LOGGING_LEVEL=${BROWSER_USE_LOGGING_LEVEL:-info}
+
+      # Browser Settings
+      - BROWSER_PATH=
+      - BROWSER_USER_DATA=
+      - BROWSER_DEBUGGING_PORT=${BROWSER_DEBUGGING_PORT:-9222}
+      - BROWSER_DEBUGGING_HOST=localhost
+      - USE_OWN_BROWSER=false
+      - KEEP_BROWSER_OPEN=true
+      - BROWSER_CDP=${BROWSER_CDP:-} # e.g., http://localhost:9222
+
+      # Display Settings
+      - DISPLAY=:99
+      # This ENV is used by the Dockerfile during build time if playwright respects it.
+      # It's not strictly needed at runtime by docker-compose unless your app or scripts also read it.
+      - PLAYWRIGHT_BROWSERS_PATH=/ms-browsers # Matches Dockerfile ENV
+      - RESOLUTION=${RESOLUTION:-1920x1080x24}
+      - RESOLUTION_WIDTH=${RESOLUTION_WIDTH:-1920}
+      - RESOLUTION_HEIGHT=${RESOLUTION_HEIGHT:-1080}
+
+      # VNC Settings
+      - VNC_PASSWORD=${VNC_PASSWORD:-youvncpassword}
+    cap_add:
+      - SYS_ADMIN
+    tmpfs:
+      - /tmp
+  easytier:
+    image: easytier/easytier:latest
+    hostname: easytier
+    container_name: easytier
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TZ=Asia/Shanghai
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./easytier:/root
+      - ./machine-id:/etc/machine-id:ro
+    command: -d --network-name mossai --network-secret mossai@2868 -p tcp://43.159.42.232:11010

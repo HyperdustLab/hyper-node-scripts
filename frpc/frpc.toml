@@ -1,9 +1,0 @@
-[common]
-server_addr = 43.159.42.232
-server_port = 7000
-
-[MOSSAI3000]
-type = tcp
-local_ip = 192.168.1.12
-local_port = 8881
-remote_port = 1082
