@@ -34,7 +34,7 @@ services:
       - OLLAMA_NUM_PARALLEL=1
   poop-mcp-client:
     network_mode: host
-    image: hyperagi/poop-mcp-client:prod
+    image: hyperagi/hyper-agent-server
     ports:
       - '8881:8881'
     restart: unless-stopped
@@ -44,6 +44,9 @@ services:
       - OLLAMA_BASE_URL=http://127.0.0.1:11434
       - MCP_SERVER=http://mcp-server.hyperagi.network
       - HYPER_AGI_API=https://app.hyperagi.network/api
+      - UNIFAI_COMMAND=/usr/local/bin/npx
+      - UNIFAI_AGENT_API_KEY=0Y6qBMnYVHwqa6K5w2WyjPLo7nCbb8KMlEfzATbyhib
+      - UNIFAI_STATIC_TOOLKITS=68,7,3,4,11,10,39
   easytier:
     image: easytier/easytier:latest
     hostname: easytier
